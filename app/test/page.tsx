@@ -20,18 +20,16 @@ const TestPage = () => {
         setLoading(true);
         setError(null);
         
-        // Use the same input as the example in getMovies.ts
+        // Use the same input format as the example in getMovies.ts
         const response = await fetch('/api/movies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            preferredGenres: ["drama", "romance", "pumpkin spice"],
-            songs: [
-              { name: "Why am I like this?", artist: "Orla Gartland", genre: "indie" },
-              { name: "Sweet Tooth", artist: "Cavetown", genre: "rock" },
-              { name: "Is This What Love Is?", artist: "Wasia Project", genre: "indie-jazz" },
+            preferredGenres: ["drama", "romance"],
+            spotifyUrls: [
+              "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
             ],
           }),
         });
