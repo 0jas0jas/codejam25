@@ -27,7 +27,13 @@ const TestPage = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            preferredGenres: ["drama", "romance"],
+            preferences: {
+              preferredGenres: ["drama", "romance"],
+              preferredEra: ["2000s"],
+              preferredDirectors: ["Christopher Nolan"],
+              preferredActors: ["Leonardo DiCaprio"],
+              // You can add any new preference type here without changing code!
+            },
             spotifyUrls: [
               "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
             ],

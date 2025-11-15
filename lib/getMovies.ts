@@ -9,9 +9,11 @@ interface SongDetails {
   genre: string;
 }
 
+// Flexible preferences schema - allows any key-value pairs where values are string arrays
+// This makes it easy to add new preference types without changing the schema
 export const userInputSchema = z.object({
-  preferredGenres: z.array(z.string()).min(1, "At least one genre is required").describe("An array of preferred music genres"),
-  spotifyUrls: z.array(z.string().url()).optional().describe("An optional array of Spotify track URLs"),
+  preferences: z.record(z.string(), z.array(z.string())).describe("A flexible object with preference keys and string array values (e.g., { preferredGenres: ['drama'], preferredEra: ['2000s'] })"),
+  spotifyUrls: z.array(z.string().url()).optional().describe("An optional array of Spotify track URLs (requires special processing)"),
 });
 
 const movieRecommendationsSchema = z.object({
@@ -70,14 +72,17 @@ const promptTemplate = PromptTemplate.fromTemplate(`
 You are an expert at creating movie recommendations based on a user's preferences. Your task is to recommend exactly 10 movies that match the user's taste.
 
 USER PREFERENCES:
-Preferred genres: {genres}
+{preferencesSection}
 {songsSection}
 
 REQUIREMENTS:
 1. Return exactly 10 movies - no more, no less. If you cannot find 10 suitable movies, still return 10 by including movies that are tangentially related or have thematic connections.
 
 2. Movie Selection Criteria:
-   - Prioritize movies that match the user's preferred genres
+   - Prioritize movies that match ALL the user's preferences listed above
+   - If "Preferred Genres" is specified, prioritize movies in those genres
+   - If "Preferred Era" or similar time-based preferences are specified, prioritize movies from those time periods
+   - Consider all preference types when making recommendations
    - If songs are provided, consider the mood, themes, and emotional tone of the music when selecting movies
    - Include a mix of well-known popular movies (60-70%) and lesser-known hidden gems (30-40%)
    - Include movies from different decades (classic, modern, recent) for variety
@@ -102,10 +107,11 @@ REQUIREMENTS:
    - Distribute scores across the range - don't give all movies the same score
 
 5. Edge Cases:
-   - If preferred genres are very niche or obscure, still find 10 movies by expanding to related genres
-   - If songs and genres seem contradictory, prioritize genre preferences but consider music mood for scoring
-   - If no songs are provided, rely solely on genre preferences
+   - If preferences are very niche or obscure, still find 10 movies by expanding to related options
+   - If songs and other preferences seem contradictory, prioritize the listed preferences but consider music mood for scoring
+   - If no songs are provided, rely solely on the user preferences listed above
    - If multiple songs are provided, consider the overall musical theme/pattern
+   - If multiple preference types are provided, try to find movies that satisfy as many as possible
 
 6. Output Format:
    - Return ONLY valid JSON matching the exact schema specified in the format instructions
@@ -148,14 +154,26 @@ export async function generateMovieRecommendations(userInput: z.infer<typeof use
 
   const formatInstructions = parser.getFormatInstructions();
 
+  // Dynamically build preferences section from the flexible preferences object
+  const preferencesSection = Object.entries(validatedInput.preferences)
+    .map(([key, values]) => {
+      // Format key nicely (e.g., "preferredGenres" -> "Preferred Genres")
+      const formattedKey = key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+      return `${formattedKey}: ${values.join(', ')}`;
+    })
+    .join('\n');
+
   const songsSection = songs.length > 0
     ? `User's favorite songs:\n${songs
         .map(song => `- "${song.name}" by ${song.artist} (Genre: ${song.genre})`)
         .join('\n')}\n\nUse these songs to understand the user's musical taste, mood preferences, and emotional themes when selecting movies.`
-    : 'No favorite songs provided. Base recommendations solely on the preferred genres.';
+    : 'No favorite songs provided. Base recommendations on the user preferences below.';
 
   const prompt = await promptTemplate.format({
-    genres: validatedInput.preferredGenres.join(', '),
+    preferencesSection, // Now contains all preferences dynamically
     songsSection,
     format_instructions: formatInstructions,
   });
@@ -202,19 +220,26 @@ export async function getMovies(userInput: z.infer<typeof userInputSchema>) {
   return movies;
 }
 
-(async () => {
-  try {
-    const movies = await getMovies({
-      preferredGenres: ["drama", "romance"],
-      spotifyUrls: [
-        "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
-      ],
-    });
-    console.log("Recommended movies:", movies);
-  } catch (error) {
-    console.error("Error:", error);
-  }
-})();
+// (async () => {
+//   try {
+//     const movies = await getMovies({
+//       preferences: {
+//         preferredGenres: ["drama", "romance"],
+//         preferredEra: ["2000s"],
+//         // You can add any new preference type here without changing code!
+//         // preferredDirectors: ["Christopher Nolan"],
+//         // preferredActors: ["Leonardo DiCaprio"],
+//         // etc.
+//       },
+//       spotifyUrls: [
+//         "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
+//       ],
+//     });
+//     console.log("Recommended movies:", movies);
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// })();
 
 // (async () => {
 //     try {
