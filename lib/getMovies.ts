@@ -202,19 +202,19 @@ export async function getMovies(userInput: z.infer<typeof userInputSchema>) {
   return movies;
 }
 
-// (async () => {
-//   try {
-//     const movies = await getMovies({
-//       preferredGenres: ["drama", "romance"],
-//       spotifyUrls: [
-//         "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
-//       ],
-//     });
-//     console.log("Recommended movies:", movies);
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// })();
+(async () => {
+  try {
+    const movies = await getMovies({
+      preferredGenres: ["drama", "romance"],
+      spotifyUrls: [
+        "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
+      ],
+    });
+    console.log("Recommended movies:", movies);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
 
 // (async () => {
 //     try {
