@@ -2,86 +2,15 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import type { MovieRating } from "@/lib/elo_rating/movie_rating";
 
-interface CardData {
+export interface CardData {
+  id?: string; // Optional ID to track which card was swiped (for ELO system)
   number: number;
   category: string;
   question: string;
   imageUrl: string;
 }
-
-const cardsData: CardData[] = [
-  {
-    number: 1,
-    category: "Happiness",
-    question: "What made you smile today?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1693734844441-3458f8942b79?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 2,
-    category: "Motivation",
-    question: "What is one goal you achieved today?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1694189044155-59716830823a?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 3,
-    category: "Well-being",
-    question: "Did you take a moment for yourself today?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1695049761557-cb56d348c297?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 4,
-    category: "Happiness",
-    question: "Who brought joy to your day?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1694687530321-7ecd3c9163b1?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 5,
-    category: "Motivation",
-    question: "Whats one thing youre looking forward to?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1695349091210-ad56d3dfd1e9?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 6,
-    category: "Well-being",
-    question: "Have you taken a deep breath today?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1696888340375-ca8e5a508b14?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 7,
-    category: "Happiness",
-    question: "Whats a memory that made you happy recently?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1696888340375-ca8e5a508b14?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 8,
-    category: "Motivation",
-    question: "Whats a challenge you overcame recently?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1695684720698-3691d44a7c2e?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA4MTJ8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 9,
-    category: "Well-being",
-    question: "Whats something youre grateful for today?",
-    imageUrl:
-      "https://images.unsplash.com/photo-1695010797762-b60361fe5e7c?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA5MDV8&ixlib=rb-4.0.3&q=85",
-  },
-  {
-    number: 10,
-    category: "Happiness",
-    question: "Share a recent accomplishment youre proud of.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1694930102144-24890d68203f?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE2OTcwMDA5MDV8&ixlib=rb-4.0.3&q=85",
-  },
-];
 
 interface CardStyles {
   zIndex: number;
@@ -89,7 +18,13 @@ interface CardStyles {
   opacity: number;
 }
 
-export function TinderCards() {
+interface TinderCardsProps {
+  cardsData: CardData[];
+  onSwipe?: (cardId: string | undefined, direction: 'right' | 'left') => void;
+  getRankings?: () => MovieRating[];
+}
+
+export function TinderCards({ cardsData, onSwipe, getRankings }: TinderCardsProps) {
   const [currentIndex, setCurrentIndex] = React.useState<number>(0);
   const [showDonePopup, setShowDonePopup] = React.useState<boolean>(false);
   const [isDragging, setIsDragging] = React.useState<boolean>(false);
@@ -124,7 +59,7 @@ export function TinderCards() {
       card.style.transform = styles.transform;
       card.style.opacity = styles.opacity.toString();
     });
-  }, [currentIndex, getCardStyles]);
+  }, [currentIndex, getCardStyles, cardsData.length]);
 
   const updateCards = React.useCallback(() => {
     if (currentIndex < cardsData.length - 1) {
@@ -134,12 +69,21 @@ export function TinderCards() {
     } else {
       setShowDonePopup(true);
     }
-  }, [currentIndex]);
+  }, [currentIndex, cardsData.length]);
 
   const handleButtonClick = React.useCallback(
     (love: boolean) => () => {
       const topCard = cardsRef.current[0];
       if (!topCard || !tinderContainerRef.current) return;
+
+      // Get the current card being swiped
+      const currentCard = cardsData[currentIndex];
+      const swipeDirection = love ? 'right' : 'left';
+      
+      // Call onSwipe callback if provided (for ELO system)
+      if (onSwipe && currentCard) {
+        onSwipe(currentCard.id, swipeDirection);
+      }
 
       const moveOutWidth = window.innerWidth * 1.5;
       topCard.classList.add("removed");
@@ -152,7 +96,7 @@ export function TinderCards() {
         updateCards();
       }, 150);
     },
-    [updateCards]
+    [updateCards, currentIndex, cardsData, onSwipe]
   );
 
   const handleTouchStart = React.useCallback(
@@ -215,6 +159,15 @@ export function TinderCards() {
     const keep = Math.abs(dragOffset.x) < 80 || Math.abs(velocity.x) < 0.5;
 
     if (!keep) {
+      // Determine swipe direction
+      const swipeDirection = dragOffset.x > 0 ? 'right' : 'left';
+      const currentCard = cardsData[currentIndex];
+      
+      // Call onSwipe callback if provided (for ELO system)
+      if (onSwipe && currentCard) {
+        onSwipe(currentCard.id, swipeDirection);
+      }
+
       const endX = Math.max(Math.abs(velocity.x) * moveOutWidth, moveOutWidth);
       const toX = dragOffset.x > 0 ? endX : -endX;
       topCard.style.transition = "transform 0.3s ease";
@@ -231,7 +184,7 @@ export function TinderCards() {
     setDragStart(null);
     setDragOffset({ x: 0, y: 0 });
     setVelocity({ x: 0, y: 0 });
-  }, [dragStart, dragOffset, velocity, updateCards]);
+  }, [dragStart, dragOffset, velocity, updateCards, currentIndex, cardsData, onSwipe]);
 
   const handleMouseDown = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -291,6 +244,15 @@ export function TinderCards() {
     const keep = Math.abs(dragOffset.x) < 80 || Math.abs(velocity.x) < 0.5;
 
     if (!keep) {
+      // Determine swipe direction
+      const swipeDirection = dragOffset.x > 0 ? 'right' : 'left';
+      const currentCard = cardsData[currentIndex];
+      
+      // Call onSwipe callback if provided (for ELO system)
+      if (onSwipe && currentCard) {
+        onSwipe(currentCard.id, swipeDirection);
+      }
+
       const endX = Math.max(Math.abs(velocity.x) * moveOutWidth, moveOutWidth);
       const toX = dragOffset.x > 0 ? endX : -endX;
       topCard.style.transition = "transform 0.3s ease";
@@ -307,7 +269,7 @@ export function TinderCards() {
     setDragStart(null);
     setDragOffset({ x: 0, y: 0 });
     setVelocity({ x: 0, y: 0 });
-  }, [dragStart, isDragging, dragOffset, velocity, updateCards]);
+  }, [dragStart, isDragging, dragOffset, velocity, updateCards, currentIndex, cardsData, onSwipe]);
 
   React.useEffect(() => {
     updateCardStyles();
@@ -347,9 +309,37 @@ export function TinderCards() {
   );
 
   if (showDonePopup) {
+    const rankings = getRankings ? getRankings() : [];
+    
     return (
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-5 z-[1000] border border-gray-300 shadow-lg rounded-lg">
-        You&apos;re Done!
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 bg-white z-[1000] border border-gray-300 shadow-lg rounded-lg">
+        <h2 className="text-2xl font-bold text-black mb-4 text-center">Your Movie Rankings</h2>
+        {rankings.length > 0 ? (
+          <div className="space-y-3">
+            {rankings.map((rating, index) => (
+              <div
+                key={rating.movie.id}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg text-black">{rating.movie.title}</h3>
+                    <p className="text-sm text-gray-600">{rating.movie.genres.join(", ")}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-black">{Math.round(rating.elo)}</div>
+                  <div className="text-xs text-gray-500">ELO</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-600">No rankings available</p>
+        )}
       </div>
     );
   }
@@ -386,11 +376,11 @@ export function TinderCards() {
               onMouseMove={isTopCard ? handleMouseMove : undefined}
               onMouseUp={isTopCard ? handleMouseUp : undefined}
             >
-              <header className="font-bold text-xl mb-4">
+              <header className="font-bold text-xl mb-4 text-black">
                 {card.category} {card.number}
               </header>
               <div className="flex flex-col items-center justify-between h-[80%]">
-                <p className="text-center text-lg mb-4">{card.question}</p>
+                <p className="text-center text-lg mb-4 text-black">{card.question}</p>
                 <img
                   src={card.imageUrl}
                   alt={card.category}
