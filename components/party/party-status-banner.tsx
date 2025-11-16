@@ -8,20 +8,20 @@ interface PartyStatusBannerProps {
 
 const statusConfig = {
   waiting: {
-    label: 'Waiting for Members',
-    color: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    label: 'Waiting for Members to Join',
+    color: 'border-yellow-200',
   },
   collecting_preferences: {
     label: 'Collecting Preferences',
-    color: 'bg-blue-50 border-blue-200 text-blue-800',
+    color: 'border-blue-200',
   },
   swiping: {
     label: 'Swiping in Progress',
-    color: 'bg-green-50 border-green-200 text-green-800',
+    color: 'border-green-200',
   },
   completed: {
     label: 'Completed',
-    color: 'bg-gray-50 border-gray-200 text-gray-800',
+    color: 'border-gray-200',
   },
 };
 

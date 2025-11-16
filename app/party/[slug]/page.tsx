@@ -194,18 +194,18 @@ export default function PartyPage() {
   const isMember = myMembership !== null;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 max-w-4xl h-screen flex flex-col justify-center">
       <PartyHeader party={party} />
       <PartyStatusBanner party={party} />
 
       {!isMember && (
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="mb-2">You're not a member of this party yet.</p>
+        <div className="mt-4 p-6 border rounded-lg">
+          <p className="mb-5 text-4xl">Wait I don't see you in my list... let's fix that.</p>
           <button
             onClick={handleJoin}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-6 py-4 bg-blue-600 text-white hover:bg-blue-700 rounded-full text-2xl"
           >
-            Join Party
+            Join this Party
           </button>
         </div>
       )}
@@ -216,16 +216,10 @@ export default function PartyPage() {
 
           {party.status === 'waiting' && (
             <>
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p>Waiting for more members to join...</p>
-                <p className="text-sm text-gray-600 mt-2">
-                  {members.length} member{members.length !== 1 ? 's' : ''} joined
-                </p>
-              </div>
               {myMembership?.role === 'host' && (
                 <Card className="mt-4">
                   <CardContent className="p-4">
-                    <p className="mb-4 text-sm text-gray-600">
+                    <p className="mb-10 text-2xl">
                       Ready to start collecting preferences?
                     </p>
                     <Button
@@ -286,7 +280,7 @@ export default function PartyPage() {
             </>
           )}
 
-          {party.status === 'swiping' && (
+          {party.status === 'swiping' && !myMembership?.has_completed_swiping && (
             <Card className="mt-4">
               <CardContent className="p-6 text-center">
                 <h3 className="text-xl font-semibold mb-4">Ready to swipe?</h3>
@@ -299,6 +293,17 @@ export default function PartyPage() {
                 >
                   Start Swiping
                 </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {party.status === 'swiping' && myMembership?.has_completed_swiping && (
+            <Card className="mt-4">
+              <CardContent className="p-6 text-center">
+                <h3 className="text-xl font-semibold mb-4">All done! 🎉</h3>
+                <p className="text-gray-600">
+                  Waiting for other members to finish swiping...
+                </p>
               </CardContent>
             </Card>
           )}

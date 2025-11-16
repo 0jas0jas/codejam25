@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 import { getUserId } from '@/lib/party/session';
 
 export default function CreatePartyPage() {
@@ -66,10 +67,10 @@ export default function CreatePartyPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
-      <Card>
+    <div className="container mx-auto px-4 py-8 max-w-md h-screen flex items-center justify-center">
+      <Card className="border-none">
         <CardHeader>
-          <CardTitle>Create a Party</CardTitle>
+          <CardTitle className="text-6xl md:text-7xl lg:text-8xl font-bold">Who's watching?</CardTitle>
           <CardDescription>
             Start a new movie party and invite your friends!
           </CardDescription>
@@ -82,7 +83,7 @@ export default function CreatePartyPage() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Movie Night 2024"
+                placeholder="e.g., Wong Kar Wai Night"
               />
             </div>
 
@@ -91,7 +92,14 @@ export default function CreatePartyPage() {
             )}
 
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? 'Creating...' : 'Create Party'}
+              {loading ? (
+                <>
+                  <Spinner size="sm" />
+                  Creating...
+                </>
+              ) : (
+                'Create Party'
+              )}
             </Button>
           </form>
         </CardContent>

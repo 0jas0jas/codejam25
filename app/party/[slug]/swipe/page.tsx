@@ -79,7 +79,7 @@ export default function SwipePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div className="min-h-screen">
       <PartyTinderCards partySlug={slug} onComplete={handleComplete} />
     </div>
   );

@@ -19,6 +19,13 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
   const [swipedMovies, setSwipedMovies] = useState<Set<string>>(new Set());
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const swipingInProgress = useRef<Set<string>>(new Set()); // Track swipes currently being processed
+  
+  // State for poster images and extra info (same as test-recommendations-page)
+  const [titleToPoster, setTitleToPoster] = useState<Record<string, string | null>>({});
+  const [titleToProduction, setTitleToProduction] = useState<Record<string, string>>({});
+  const [titleToDirectors, setTitleToDirectors] = useState<Record<string, string[]>>({});
+  const [titleToDescription, setTitleToDescription] = useState<Record<string, string>>({});
+  const [titleToRating, setTitleToRating] = useState<Record<string, number | null>>({});
 
   // Fetch movies
   useEffect(() => {
@@ -73,6 +80,54 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
       }));
 
       setMovies(convertedMovies);
+
+      // Enrich posters via our TMDB-backed endpoint using only names (same as test-recommendations-page)
+      try {
+        const names = convertedMovies.map((m: any) => m.title);
+        const infoRes = await fetch('/api/movie-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ names }),
+        });
+        if (infoRes.ok) {
+          const infoJson: { movies?: any[] } = await infoRes.json();
+          const infos = infoJson.movies ?? [];
+          // Helper to normalize titles for resilient matching
+          const normalize = (s: string) =>
+            s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+          const posterMap: Record<string, string | null> = {};
+          const productionMap: Record<string, string> = {};
+          const directorsMap: Record<string, string[]> = {};
+          const descriptionMap: Record<string, string> = {};
+          const ratingMap: Record<string, number | null> = {};
+          const normalizedInfos = infos.map((mi) => ({
+            norm: normalize(mi.title),
+            data: mi,
+          }));
+          for (const m of convertedMovies) {
+            const normTitle = normalize(m.title);
+            const exact = normalizedInfos.find((x) => x.norm === normTitle)?.data;
+            const partial = exact
+              ? undefined
+              : normalizedInfos.find((x) => x.norm.includes(normTitle) || normTitle.includes(x.norm))?.data;
+            const chosen = exact ?? partial;
+            posterMap[m.title] = chosen?.poster ?? null;
+            productionMap[m.title] = (chosen?.production ?? [])[0] ?? '';
+            directorsMap[m.title] = chosen?.directors ?? [];
+            descriptionMap[m.title] = chosen?.description ?? '';
+            ratingMap[m.title] = chosen?.rating ?? null;
+          }
+          setTitleToPoster(posterMap);
+          setTitleToProduction(productionMap);
+          setTitleToDirectors(directorsMap);
+          setTitleToDescription(descriptionMap);
+          setTitleToRating(ratingMap);
+        } else {
+          console.warn('Failed to fetch movie posters from /api/movie-info');
+        }
+      } catch (e) {
+        console.warn('Poster enrichment failed', e);
+      }
 
       // Get user's existing swipes
       const { getUserId } = await import('@/lib/party/session');
@@ -162,13 +217,27 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
     }
   };
 
+  // Convert movies to CardData format, supplying poster and details from TMDB info (same as test-recommendations-page)
   const cardsData = useMemo(() => {
     if (movies.length === 0) return [];
     
     // Filter out already swiped movies
     const unswipedMovies = movies.filter(m => !swipedMovies.has(m.id));
-    return moviesToCardData(unswipedMovies);
-  }, [movies, swipedMovies]);
+    
+    return moviesToCardData(
+      unswipedMovies,
+      (movie) => {
+        const poster = titleToPoster[movie.title];
+        return poster ?? `https://via.placeholder.com/300x400?text=${encodeURIComponent(movie.title)}`;
+      },
+      (movie) => ({
+        production: titleToProduction[movie.title],
+        directors: titleToDirectors[movie.title],
+        description: titleToDescription[movie.title],
+        rating: titleToRating[movie.title],
+      })
+    );
+  }, [movies, swipedMovies, titleToPoster, titleToProduction, titleToDirectors, titleToDescription, titleToRating]);
 
   if (loading) {
     return (

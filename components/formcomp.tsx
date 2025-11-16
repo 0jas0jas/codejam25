@@ -62,10 +62,6 @@ export function FormComp({ onFormSubmit }: FormCompProps) {
 
     function onSubmit() {
         // Require at least one genre
-        if (genreTags.length === 0) {
-            form.setError("genres", { type: "manual", message: "Please select at least one genre" });
-            return;
-        }
         // Build preferences object
         const preferences: Record<string, string[]> = {};
         

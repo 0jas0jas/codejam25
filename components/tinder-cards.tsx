@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import type { MovieRating } from "@/lib/elo_rating/movie_rating";
 import Image from "next/image";
+import { Heart, X } from "lucide-react";
 
 export interface CardData {
   id?: string; // Optional ID to track which card was swiped (for ELO system)
@@ -37,6 +38,24 @@ export function TinderCards({ cardsData, onSwipe, getRankings }: TinderCardsProp
   const [dragOffset, setDragOffset] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [velocity, setVelocity] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [expanded, setExpanded] = React.useState<boolean>(false);
+  const [isSwiping, setIsSwiping] = React.useState<boolean>(false); // Prevent double swipes
+  
+  // Track previous cardsData length to detect when cards are filtered out
+  const prevCardsLengthRef = React.useRef<number>(cardsData.length);
+  
+  // Reset currentIndex to 0 when cards are filtered out (swiped)
+  React.useEffect(() => {
+    // If cards were removed (filtered), reset index to 0 to show the next card
+    if (cardsData.length < prevCardsLengthRef.current && cardsData.length > 0) {
+      setCurrentIndex(0);
+    }
+    prevCardsLengthRef.current = cardsData.length;
+    
+    // If no cards left, show done popup
+    if (cardsData.length === 0) {
+      setShowDonePopup(true);
+    }
+  }, [cardsData.length]);
 
   const tinderContainerRef = React.useRef<HTMLDivElement>(null);
   const cardsRef = React.useRef<(HTMLDivElement | null)[]>([]);
@@ -68,12 +87,15 @@ export function TinderCards({ cardsData, onSwipe, getRankings }: TinderCardsProp
   }, [currentIndex, getCardStyles, cardsData.length]);
 
   const updateCards = React.useCallback(() => {
-    if (currentIndex < cardsData.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setDragOffset({ x: 0, y: 0 });
-      setIsDragging(false);
-      setExpanded(false);
-    } else {
+    // Don't increment index - the card will be filtered out and next card becomes index 0
+    // Just reset drag state and expanded state
+    setDragOffset({ x: 0, y: 0 });
+    setIsDragging(false);
+    setExpanded(false);
+    
+    // The useEffect will handle resetting currentIndex when cards are filtered
+    // If no cards left, show done popup
+    if (cardsData.length <= 1) {
       setShowDonePopup(true);
     }
   }, [cardsData.length]);
@@ -505,20 +527,22 @@ export function TinderCards({ cardsData, onSwipe, getRankings }: TinderCardsProp
           );
         })}
       </div>
-      <div className="w-full flex justify-between px-0 ml-[5%] mt-5">
+      <div className="w-full flex justify-center items-center gap-8 mt-8">
         <button
           id="nope"
           onClick={handleButtonClick(false)}
-          className="inline-block w-[calc(50%-10px)] p-2.5 border-none rounded-md text-base cursor-pointer outline-none shadow-[0_4px_15px_rgba(0,0,0,0.2)] text-center m-auto bg-[#ec5252] text-white hover:opacity-90 transition-opacity"
+          className="w-16 h-16 rounded-full bg-[#ec5252] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(236,82,82,0.4)] hover:shadow-[0_6px_20px_rgba(236,82,82,0.5)] hover:scale-110 transition-all duration-200 outline-none focus:ring-2 focus:ring-[#ec5252] focus:ring-offset-2"
+          aria-label="Nope"
         >
-          Nope
+          <X className="w-7 h-7" />
         </button>
         <button
           id="love"
           onClick={handleButtonClick(true)}
-          className="inline-block w-[calc(50%-10px)] p-2.5 border-none rounded-md text-base cursor-pointer outline-none shadow-[0_4px_15px_rgba(0,0,0,0.2)] text-center m-auto bg-[#4caf50] text-white hover:opacity-90 transition-opacity"
+          className="w-16 h-16 rounded-full bg-[#4caf50] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(76,175,80,0.4)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.5)] hover:scale-110 transition-all duration-200 outline-none focus:ring-2 focus:ring-[#4caf50] focus:ring-offset-2"
+          aria-label="Love"
         >
-          Love
+          <Heart className="w-7 h-7" />
         </button>
       </div>
     </div>

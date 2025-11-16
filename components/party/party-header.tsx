@@ -27,12 +27,12 @@ export function PartyHeader({ party }: PartyHeaderProps) {
   };
 
   return (
-    <div className="mb-6">
-      <h1 className="text-3xl font-bold mb-2">
+    <div className="mb-16">
+      <h1 className="text-6xl font-bold mb-5">
         {party.name || 'Movie Party'}
       </h1>
       <div className="flex items-center gap-2">
-        <code className="px-2 py-1 bg-gray-100 rounded text-sm">{partyUrl}</code>
+        <code className="px-2 py-1 rounded text-sm">{partyUrl}</code>
         <Button
           variant="outline"
           size="sm"
