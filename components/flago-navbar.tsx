@@ -58,7 +58,7 @@ export default function FlagoNavbar() {
               
               {/* Logo Text with hover effect */}
               <div className="flex flex-col">
-                <span className="text-base font-bold text-white leading-tight transition-colors duration-300 group-hover:text-black">
+                <span className="text-lg font-bold text-white leading-tight transition-colors duration-300 group-hover:text-black">
                   Flago
                 </span>
               </div>
@@ -79,7 +79,7 @@ export default function FlagoNavbar() {
                className="
                  group
                  relative
-                 text-sm font-medium text-white
+                 text-base font-medium text-white
                  whitespace-nowrap
                  px-4 py-2
                  transition-all duration-300 ease-out
@@ -131,7 +131,7 @@ export default function FlagoNavbar() {
           {/* Right Section - Get Started Button */}
           <div className="flex items-center">
             <Link
-              href="/party/create"
+              href="/forms"
               className="
                 group
                 relative
@@ -164,7 +164,7 @@ export default function FlagoNavbar() {
               "></div>
               
               {/* Text and icon */}
-              <span className="relative z-10">Create Room</span>
+              <span className="relative z-10">Get Started</span>
               <svg 
                 className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" 
                 fill="none" 
@@ -227,7 +227,7 @@ export default function FlagoNavbar() {
                 key={`mobile-link-${idx}`}
                 href={item.link}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-white font-medium py-2"
+                className="text-base text-white font-medium py-2"
               >
                 {item.name}
               </Link>
