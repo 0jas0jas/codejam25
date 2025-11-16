@@ -4,7 +4,7 @@ import { TinderCards } from '@/components/tinder-cards'
 const Test1Page = () => {
   return (
     <div>
-      <TinderCards />
+      <TinderCards cardsData={[]} />
     </div>
   )
 }

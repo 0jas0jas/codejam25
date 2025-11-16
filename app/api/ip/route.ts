@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const realIp = request.headers.get('x-real-ip');
   const cfConnectingIp = request.headers.get('cf-connecting-ip'); // Cloudflare
   
-  let ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || request.ip || 'unknown';
+  let ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown';
 
   // Remove port if present
   ip = ip.split(':')[0];
