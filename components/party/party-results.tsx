@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Lottie from 'lottie-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -23,10 +24,19 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
   const [rankings, setRankings] = useState<MovieWithPoster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confettiData, setConfettiData] = useState<any>(null);
 
   useEffect(() => {
     fetchResults();
   }, [partySlug]);
+
+  // Load confetti animation
+  useEffect(() => {
+    fetch('/confetti.json')
+      .then((res) => res.json())
+      .then((data) => setConfettiData(data))
+      .catch((err) => console.error('Error loading confetti animation:', err));
+  }, []);
 
   const fetchResults = async () => {
     try {
@@ -120,10 +130,23 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">We think you should watch...</CardTitle>
-      </CardHeader>
+    <div className="relative">
+      {/* Confetti Animation Overlay */}
+      {confettiData && !loading && !error && rankings.length > 0 && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <Lottie
+            animationData={confettiData}
+            loop={false}
+            autoplay={true}
+            className="w-full h-full"
+          />
+        </div>
+      )}
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">We think you should watch...</CardTitle>
+        </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {rankings.map((movie, index) => {
@@ -251,6 +274,7 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
 
