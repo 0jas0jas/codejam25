@@ -41,13 +41,13 @@ export default function HomePage() {
             <br />
             Set your preferences and let our AI handle the rest - solo or with friends.
             <br />
-            Watching alone? Tap Get Started. With friends? Use Create Room (top-right).
+            With friends? Use Create a Party.Watching alone? Tap Get Started. (top-right).
             </p>
 
             {/* Call-to-Action Button */}
             <div className="pt-4">
               <Link
-                href="/forms"
+                href="/party/create"
                 className="
                   inline-flex items-center gap-2
                   px-8 py-4 text-lg font-semibold
@@ -59,7 +59,7 @@ export default function HomePage() {
                   cursor-pointer
                 "
               >
-                Get started
+                Create a Party
                 <svg 
                   className="w-5 h-5" 
                   fill="none" 

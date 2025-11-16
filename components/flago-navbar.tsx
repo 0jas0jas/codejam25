@@ -131,7 +131,7 @@ export default function FlagoNavbar() {
           {/* Right Section - Get Started Button */}
           <div className="flex items-center">
             <Link
-              href="/party/create"
+              href="/forms"
               className="
                 group
                 relative
@@ -164,7 +164,7 @@ export default function FlagoNavbar() {
               "></div>
               
               {/* Text and icon */}
-              <span className="relative z-10">Create Room</span>
+              <span className="relative z-10">Get Started</span>
               <svg 
                 className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" 
                 fill="none" 

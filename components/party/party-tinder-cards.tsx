@@ -5,7 +5,6 @@ import { TinderCards } from '@/components/tinder-cards';
 import { moviesToCardData } from '@/lib/elo_rating/movieToCardData';
 import { subscribeToParty, unsubscribeFromParty } from '@/lib/party/realtime';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PartyTinderCardsProps {
   partySlug: string;
@@ -241,60 +240,108 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <p>Loading movies...</p>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-12 text-center">
+          <div className="inline-block w-12 h-12 border-4 border-white/30 border-t-sky-400 rounded-full animate-spin mb-4"></div>
+          <p className="text-white text-lg font-medium">Loading movies...</p>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center text-red-600">
-          <p>{error}</p>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 rounded-2xl p-12 text-center max-w-md">
+          <div className="text-red-400 text-4xl mb-4">⚠️</div>
+          <p className="text-red-300 text-lg font-medium">{error}</p>
+        </div>
+      </div>
     );
   }
 
   if (movies.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center">
-          <p>No movies available. The host needs to generate movies first.</p>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-12 text-center max-w-md">
+          <div className="text-white/70 text-4xl mb-4">🎬</div>
+          <p className="text-white text-lg font-medium">
+            No movies available. The host needs to generate movies first.
+          </p>
+        </div>
+      </div>
     );
   }
 
   const remainingCount = movies.length - swipedMovies.size;
+  const progressPercentage = ((movies.length - remainingCount) / movies.length) * 100;
 
   return (
-    <div>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>
-            Swipe through movies ({remainingCount} remaining)
-          </CardTitle>
-        </CardHeader>
-      </Card>
+    <div className="space-y-6">
+      {/* Enhanced Header Card */}
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Swipe through movies
+            </h2>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 bg-white/10 rounded-full h-3 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-sky-400 to-blue-500 transition-all duration-500 ease-out rounded-full"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+              <div className="text-white/90 font-semibold text-lg min-w-[80px] text-right">
+                {remainingCount} left
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-sky-400/20 rounded-lg border border-sky-400/30">
+            <div className="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></div>
+            <span className="text-sky-300 text-sm font-medium">
+              {Math.round(progressPercentage)}% complete
+            </span>
+          </div>
+        </div>
+      </div>
 
+      {/* Swipe Instructions */}
+      {remainingCount > 0 && remainingCount === movies.length && (
+        <div className="bg-gradient-to-r from-sky-500/20 to-blue-500/20 backdrop-blur-md border border-sky-400/30 rounded-xl p-4">
+          <div className="flex items-center gap-3 text-white/90">
+            <div className="text-2xl">👆</div>
+            <div className="flex-1">
+              <p className="font-medium">Swipe right to like, left to pass</p>
+              <p className="text-sm text-white/70 mt-1">Or use the buttons below</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tinder Cards */}
       {remainingCount > 0 ? (
-        <TinderCards
-          cardsData={cardsData}
-          onSwipe={handleSwipe}
-        />
+        <div className="relative">
+          <TinderCards
+            cardsData={cardsData}
+            onSwipe={handleSwipe}
+          />
+        </div>
       ) : (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-lg font-semibold mb-2">All done! 🎉</p>
-            <p className="text-gray-600">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="bg-gradient-to-br from-sky-500/20 to-purple-500/20 backdrop-blur-md border border-white/20 rounded-2xl p-12 text-center max-w-md shadow-xl">
+            <div className="text-6xl mb-4 animate-bounce">🎉</div>
+            <p className="text-white text-2xl font-bold mb-2">All done!</p>
+            <p className="text-white/80 text-lg">
               Waiting for other members to finish swiping...
             </p>
-          </CardContent>
-        </Card>
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-sky-400 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-sky-400 rounded-full animate-pulse [animation-delay:0.2s]"></div>
+              <div className="w-2 h-2 bg-sky-400 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
