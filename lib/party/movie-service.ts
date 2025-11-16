@@ -63,7 +63,7 @@ export async function generatePartyMovies(partyId: string, userId?: string) {
     throw new Error(`Failed to aggregate preferences: ${aggError.message}`);
   }
 
-  if (!aggregated || Object.keys(aggregated).length === 0) {
+  if (!aggregated) {
     throw new Error('No preferences found. All members must submit preferences first.');
   }
 

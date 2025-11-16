@@ -386,7 +386,7 @@ export function TinderCards({ cardsData, onSwipe, getRankings }: TinderCardsProp
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen overflow-hidden">
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <div
         ref={tinderContainerRef}
         className="relative w-[300px] h-[400px] bg-transparent rounded-[15px] flex flex-col justify-end"

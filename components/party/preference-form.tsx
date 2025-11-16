@@ -103,7 +103,7 @@ export function PreferenceForm({ partySlug, hasSubmitted, onSubmitted }: Prefere
         },
         body: JSON.stringify({
           action: 'submit-preferences',
-          preferences,
+          preferences: Object.keys(preferences).length > 0 ? preferences : {},
           spotifyUrls: spotifyUrls.length > 0 ? spotifyUrls : undefined,
           userId,
         }),

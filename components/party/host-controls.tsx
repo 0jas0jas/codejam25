@@ -20,10 +20,7 @@ export function HostControls({ partySlug, members, onStatusChange }: HostControl
   const submittedCount = members.filter(m => m.has_submitted_preferences).length;
 
   const handleStartSwiping = async () => {
-    if (!allMembersSubmitted) {
-      setError('Not all members have submitted preferences yet');
-      return;
-    }
+    
 
     setLoading(true);
     setError(null);

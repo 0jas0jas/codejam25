@@ -131,7 +131,7 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
               return (
                 <div
                   key={movie.id}
-                  className="relative w-full min-h-64 sm:min-h-48 h-auto rounded-lg overflow-hidden shadow-lg"
+                  className="relative w-full min-h-64 sm:min-h-48 h-auto rounded-lg shadow-lg"
                   style={{
                     backgroundImage: movie.poster
                       ? `linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%), url(${movie.poster})`

@@ -31,13 +31,13 @@ export function PartyHeader({ party }: PartyHeaderProps) {
       <h1 className="text-6xl font-bold mb-5">
         {party.name || 'Movie Party'}
       </h1>
-      <div className="flex items-center gap-2">
-        <code className="px-2 py-1 rounded text-sm">{partyUrl}</code>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <code className="px-2 py-1 rounded text-sm break-all">{partyUrl}</code>
         <Button
           variant="outline"
           size="sm"
           onClick={handleCopy}
-          className="flex items-center gap-2"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           {copied ? (
             <>

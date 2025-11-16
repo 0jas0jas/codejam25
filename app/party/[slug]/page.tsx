@@ -194,7 +194,7 @@ export default function PartyPage() {
   const isMember = myMembership !== null;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl h-screen flex flex-col justify-center">
+    <div className="container mx-auto px-4 py-8 max-w-4xl min-h-screen">
       <PartyHeader party={party} />
       <PartyStatusBanner party={party} />
 
