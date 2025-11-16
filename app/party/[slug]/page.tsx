@@ -13,6 +13,76 @@ import { subscribeToParty, unsubscribeFromParty } from '@/lib/party/realtime';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import Lottie from 'lottie-react';
+
+/**
+ * Loading screen component with animation and dynamic text
+ */
+function PartyLoadingScreen() {
+  const [loadingText, setLoadingText] = useState('Loading Party...');
+  const [animationData, setAnimationData] = useState<any>(null);
+
+  // Load animation
+  useEffect(() => {
+    fetch('/loading.json')
+      .then((res) => res.json())
+      .then((data) => setAnimationData(data))
+      .catch((err) => console.error('Error loading animation:', err));
+  }, []);
+
+  // Change text at intervals
+  useEffect(() => {
+    const messages = [
+      'Loading Party...',
+      'Gathering Preferences...',
+      'Generating Results...',
+      'Preparing Movies...',
+      'Almost Ready...',
+    ];
+
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % messages.length;
+      setLoadingText(messages[currentIndex]);
+    }, 2000); // Change text every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative">
+      <div className="flex flex-col items-center justify-center space-y-8">
+        {/* Animation */}
+        <div className="w-64 h-64 lg:w-96 lg:h-96">
+          {animationData ? (
+            <Lottie
+              animationData={animationData}
+              loop={true}
+              autoplay={true}
+              className="w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-white/50 text-4xl">🎬</div>
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic Text */}
+        <div className="text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+            {loadingText}
+          </h2>
+          <div className="flex items-center justify-center space-x-2 mt-4">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.2s]"></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.4s]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function PartyPage() {
   const params = useParams();
@@ -167,11 +237,7 @@ export default function PartyPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">Loading party...</div>
-      </div>
-    );
+    return <PartyLoadingScreen />;
   }
 
   if (error || !party) {
