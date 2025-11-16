@@ -293,6 +293,15 @@ export async function recordSwipeAnonymous(
       const allCompleted = allMembers?.every(m => m.has_completed_swiping) ?? false;
       
       if (allCompleted) {
+        // Calculate and store final ELO rankings using checkAll()
+        const { calculateAndStoreFinalRankings } = await import('@/lib/party/movie-service');
+        try {
+          await calculateAndStoreFinalRankings(partyId);
+        } catch (error) {
+          console.error('[RECORD SWIPE] Error calculating final rankings:', error);
+          // Continue anyway - we'll still mark as completed
+        }
+        
         // Update party status to completed
         await supabase
           .from('parties')

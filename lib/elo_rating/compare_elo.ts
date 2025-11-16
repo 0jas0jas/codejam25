@@ -4,9 +4,6 @@ export type MovieObject = {
     elo: number;
   };
   
-  // Initialize the list that will store the results
-  let newList: MovieObject[] = [];
-  
   /**
    * Calculates the sum of ELOs for a specific movie name across a 2D list of movies.
    * @param movieList - A 2D array (List of Lists) of MovieObjects
@@ -36,8 +33,8 @@ export type MovieObject = {
    * @returns A list of MovieObjects with aggregated ELOs
    */
   export function checkAll(movieList: MovieObject[][]): MovieObject[] {
-    // Reset list if needed, or just append as per your python script
-    // newList = []; 
+    // Initialize the list that will store the results (reset on each call)
+    const newList: MovieObject[] = [];
     
     // Guard clause to prevent errors if list is empty
     if (movieList.length === 0 || movieList[0].length === 0) {
