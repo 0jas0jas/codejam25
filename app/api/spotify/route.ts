@@ -6,6 +6,28 @@ interface SpotifyTrackInfo {
   genre: string;
 }
 
+interface SpotifyTrack {
+  id: string;
+  name: string;
+  artist: string;
+  album: string;
+  preview_url: string | null;
+  external_urls: {
+    spotify: string;
+  };
+}
+
+interface SpotifySearchTrack {
+  id: string;
+  name: string;
+  artists: Array<{ name: string }>;
+  album: { name: string };
+  preview_url: string | null;
+  external_urls: {
+    spotify: string;
+  };
+}
+
 // Extract track ID from Spotify URL
 function extractTrackId(url: string): string | null {
   // Handle different Spotify URL formats:
@@ -104,6 +126,73 @@ async function fetchTrackInfo(trackId: string, accessToken: string): Promise<Spo
   } catch (error) {
     console.error('Error fetching track info:', error);
     return null;
+  }
+}
+
+// Search for tracks on Spotify
+async function searchTracks(query: string, accessToken: string, limit: number = 10): Promise<SpotifyTrack[]> {
+  try {
+    const response = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    const tracks = (data.tracks?.items || []) as SpotifySearchTrack[];
+
+    return tracks.map((track: SpotifySearchTrack) => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists?.[0]?.name || 'Unknown Artist',
+      album: track.album?.name || 'Unknown Album',
+      preview_url: track.preview_url,
+      external_urls: track.external_urls,
+    }));
+  } catch (error) {
+    console.error('Error searching tracks:', error);
+    return [];
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const query = searchParams.get('q');
+
+    if (!query || typeof query !== 'string') {
+      return NextResponse.json(
+        { error: 'Search query is required' },
+        { status: 400 }
+      );
+    }
+
+    // Get access token
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: 'Failed to authenticate with Spotify. Please check your SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET environment variables.' },
+        { status: 500 }
+      );
+    }
+
+    // Search for tracks
+    const tracks = await searchTracks(query, accessToken, 10);
+    
+    return NextResponse.json({ tracks });
+  } catch (error) {
+    console.error('Error in Spotify search API route:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 

@@ -1,17 +1,27 @@
 "use client";
 
 import { TinderCards } from '@/components/tinder-cards'
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, Suspense } from 'react'
 import { EloRatingSystem, Stack, Movie } from '@/lib/elo_rating/movie_rating'
 import { moviesToCardData } from '@/lib/elo_rating/movieToCardData'
+import { useSearchParams } from 'next/navigation'
+import { userInputSchema } from '@/components/formcomp'
+import { z } from 'zod'
 
-const TestPage = () => {
+interface ApiMovieResponse {
+  title: string;
+  genre: string[];
+  expectedScore: number;
+}
+
+const TestPageContent = () => {
   // Initialize ELO rating system
   const [ratingSystem] = useState(() => new EloRatingSystem());
   const [movieStack] = useState(() => new Stack<Movie>());
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   // Fetch movies using API route
   useEffect(() => {
@@ -20,24 +30,40 @@ const TestPage = () => {
         setLoading(true);
         setError(null);
         
-        // Use the same input format as the example in getMovies.ts
+        // Get form data from URL query params
+        const dataParam = searchParams.get('data');
+        let formData: z.infer<typeof userInputSchema>;
+        
+        if (dataParam) {
+          try {
+            // Decode and parse the form data from URL
+            const decodedData = decodeURIComponent(dataParam);
+            const parsedData = JSON.parse(decodedData);
+            formData = userInputSchema.parse(parsedData);
+          } catch (parseError) {
+            console.error("Error parsing form data from URL:", parseError);
+            setError("Invalid form data. Please go back and submit the form again.");
+            setLoading(false);
+            return;
+          }
+        } else {
+          // Fallback to dummy data if no form data is provided
+          formData = {
+            preferences: {
+              preferredGenres: ["drama", "romance"],
+              preferredEra: ["2000s"],
+            },
+            spotifyUrls: [],
+          };
+        }
+        
+        // Use the form data (either from URL or fallback)
         const response = await fetch('/api/movies', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            preferences: {
-              preferredGenres: ["drama", "romance"],
-              preferredEra: ["2000s"],
-              preferredDirectors: ["Christopher Nolan"],
-              preferredActors: ["Leonardo DiCaprio"],
-              // You can add any new preference type here without changing code!
-            },
-            spotifyUrls: [
-              "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn?si=a615e44cba56420b",
-            ],
-          }),
+          body: JSON.stringify(formData),
         });
 
         if (!response.ok) {
@@ -51,7 +77,7 @@ const TestPage = () => {
         // Convert the returned format to Movie format
         // API returns: { title, genre, expectedScore }
         // Movie expects: { id, title, genres, expected_score }
-        const convertedMovies: Movie[] = movieRecommendations.map((movie: any, index: number) => ({
+        const convertedMovies: Movie[] = movieRecommendations.map((movie: ApiMovieResponse, index: number) => ({
           id: `m${index + 1}`,
           title: movie.title,
           genres: movie.genre,
@@ -68,7 +94,7 @@ const TestPage = () => {
     };
 
     fetchMovies();
-  }, []);
+  }, [searchParams]);
 
   // Load movies into ELO system and stack
   useEffect(() => {
@@ -141,6 +167,20 @@ const TestPage = () => {
         getRankings={() => ratingSystem.getRankings()}
       />
     </div>
+  )
+}
+
+const TestPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <TestPageContent />
+    </Suspense>
   )
 }
 
