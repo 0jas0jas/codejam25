@@ -121,39 +121,41 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-4xl font-bold">We think you should watch...</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">We think you should watch...</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {rankings.map((movie, index) => {
-            // First movie: horizontal card with background image
+            // First movie: vertical on mobile, horizontal on larger screens
             if (index === 0) {
               return (
                 <div
                   key={movie.id}
-                  className="relative w-full h-48 rounded-lg overflow-hidden shadow-lg"
+                  className="relative w-full min-h-64 sm:min-h-48 h-auto rounded-lg overflow-hidden shadow-lg"
                   style={{
                     backgroundImage: movie.poster
-                      ? `linear-gradient(to right, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%), url(${movie.poster})`
-                      : 'linear-gradient(to right, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.7))',
+                      ? `linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.85) 100%), url(${movie.poster})`
+                      : 'linear-gradient(to bottom, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.7))',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                   }}
                 >
-                  <div className="absolute inset-0 flex items-center justify-between p-6 text-white">
-                    <div className="flex items-center gap-6 flex-1">
-                      <div className="text-4xl font-bold text-white/90">
+                  <div className="absolute inset-0 flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-4 md:p-6 text-white gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4 md:gap-6 flex-1 min-w-0 w-full sm:w-auto">
+                      <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white/90 flex-shrink-0">
                         #1
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-3xl mb-2">{movie.title}</h3>
-                        <div className="flex gap-2 flex-wrap">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl mb-2 line-clamp-2 break-words">
+                          {movie.title}
+                        </h3>
+                        <div className="flex gap-1 sm:gap-2 flex-wrap mb-3 sm:mb-0">
                           {movie.genres.map((genre: string) => (
                             <Badge
                               key={genre}
                               variant="outline"
-                              className="text-xs bg-white/20 text-white border-white/30"
+                              className="text-[10px] sm:text-xs bg-white/20 text-white border-white/30"
                             >
                               {genre}
                             </Badge>
@@ -161,12 +163,14 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right ml-6">
-                      <div className="text-3xl font-bold text-white">
-                        {Math.round(movie.elo_rating)}
+                    <div className="text-left sm:text-right ml-0 sm:ml-4 md:ml-6 flex-shrink-0 w-full sm:w-auto flex sm:block items-center sm:items-end justify-between sm:justify-end gap-4 sm:gap-0">
+                      <div className="flex flex-col">
+                        <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white">
+                          {Math.round(movie.elo_rating)}
+                        </div>
+                        <div className="text-[10px] sm:text-xs md:text-sm text-white/80">ELO Rating</div>
                       </div>
-                      <div className="text-sm text-white/80">ELO Rating</div>
-                      <div className="text-xs text-white/70 mt-1">
+                      <div className="text-[10px] sm:text-xs text-white/70">
                         {movie.right_swipes} likes, {movie.left_swipes} passes
                       </div>
                     </div>
@@ -179,29 +183,31 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
             return (
               <div
                 key={movie.id}
-                className="flex items-center justify-between p-4 rounded-lg"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg gap-3 sm:gap-4"
               >
-                <div className="flex items-center gap-4">
-                  <div className="text-2xl font-bold text-gray-400 w-8">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400 w-6 sm:w-8 flex-shrink-0">
                     #{index + 1}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">{movie.title}</h3>
-                    <div className="flex gap-2 mt-1">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base md:text-lg line-clamp-2 break-words">
+                      {movie.title}
+                    </h3>
+                    <div className="flex gap-1 sm:gap-2 mt-1 flex-wrap">
                       {movie.genres.map((genre: string) => (
-                        <Badge key={genre} variant="outline" className="text-xs">
+                        <Badge key={genre} variant="outline" className="text-[10px] sm:text-xs">
                           {genre}
                         </Badge>
                       ))}
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold">
+                <div className="text-left sm:text-right flex-shrink-0">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold">
                     {Math.round(movie.elo_rating)}
                   </div>
-                  <div className="text-sm text-gray-600">ELO Rating</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-[10px] sm:text-xs md:text-sm text-gray-600">ELO Rating</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                     {movie.right_swipes} likes, {movie.left_swipes} passes
                   </div>
                 </div>
