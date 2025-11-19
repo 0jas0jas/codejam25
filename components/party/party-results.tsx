@@ -100,9 +100,16 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-8 text-center">
-          <p>Loading results...</p>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-sky-500 rounded-full animate-pulse"></div>
+              <div className="w-4 h-4 bg-sky-500 rounded-full animate-pulse [animation-delay:0.2s]"></div>
+              <div className="w-4 h-4 bg-sky-500 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+            </div>
+            <p className="text-white">Loading results...</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -110,8 +117,8 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
 
   if (error) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center text-red-600">
+      <Card className="bg-gray-800 border-gray-700">
+        <CardContent className="p-8 text-center text-red-400">
           <p>{error}</p>
         </CardContent>
       </Card>
@@ -119,11 +126,20 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">We think you should watch...</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="space-y-4">
+      {/* All Done Message */}
+      <Card className="bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700">
+        <CardContent className="p-6 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">🎉 All Done! 🎉</h2>
+          <p className="text-gray-300 text-lg">Here are your personalized movie recommendations</p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white">We think you should watch...</CardTitle>
+        </CardHeader>
+        <CardContent>
         <div className="space-y-4">
           {rankings.map((movie, index) => {
             // First movie: vertical on mobile, horizontal on larger screens
@@ -183,19 +199,19 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
             return (
               <div
                 key={movie.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg gap-3 sm:gap-4"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg gap-3 sm:gap-4 bg-gray-700/50 hover:bg-gray-700/70 transition-colors"
               >
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400 w-6 sm:w-8 flex-shrink-0">
                     #{index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm sm:text-base md:text-lg line-clamp-2 break-words">
+                    <h3 className="font-semibold text-sm sm:text-base md:text-lg line-clamp-2 break-words text-white">
                       {movie.title}
                     </h3>
                     <div className="flex gap-1 sm:gap-2 mt-1 flex-wrap">
                       {movie.genres.map((genre: string) => (
-                        <Badge key={genre} variant="outline" className="text-[10px] sm:text-xs">
+                        <Badge key={genre} variant="outline" className="text-[10px] sm:text-xs border-gray-600 text-gray-300">
                           {genre}
                         </Badge>
                       ))}
@@ -203,10 +219,10 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
                   </div>
                 </div>
                 <div className="text-left sm:text-right flex-shrink-0">
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-white">
                     {Math.round(movie.elo_rating)}
                   </div>
-                  <div className="text-[10px] sm:text-xs md:text-sm text-gray-600">ELO Rating</div>
+                  <div className="text-[10px] sm:text-xs md:text-sm text-gray-400">ELO Rating</div>
                   <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
                     {movie.right_swipes} likes, {movie.left_swipes} passes
                   </div>
@@ -217,6 +233,7 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
 

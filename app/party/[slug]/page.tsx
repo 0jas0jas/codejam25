@@ -96,10 +96,16 @@ export default function PartyPage() {
   const [error, setError] = useState<string | null>(null);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [totalMovies, setTotalMovies] = useState<number>(10);
+  const [confettiData, setConfettiData] = useState<any>(null);
 
   // Fetch initial data
   useEffect(() => {
     fetchPartyData();
+    // Load confetti animation
+    fetch('/confetti.json')
+      .then((res) => res.json())
+      .then((data) => setConfettiData(data))
+      .catch((err) => console.error('Error loading confetti animation:', err));
   }, [slug]);
 
 
@@ -260,9 +266,21 @@ export default function PartyPage() {
   const isMember = myMembership !== null;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl min-h-screen">
-      <PartyHeader party={party} />
-      <PartyStatusBanner party={party} />
+    <div className="container mx-auto px-4 py-8 max-w-4xl min-h-screen relative">
+      {/* Confetti Animation - Full Screen Overlay when results are shown */}
+      {party?.status === 'completed' && confettiData && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <Lottie
+            animationData={confettiData}
+            loop={true}
+            autoplay={true}
+            className="w-full h-full"
+          />
+        </div>
+      )}
+      <div className="relative z-10">
+        <PartyHeader party={party} />
+        <PartyStatusBanner party={party} />
 
       {!isMember && (
         <div className="mt-4 p-6 border rounded-lg">
@@ -379,6 +397,7 @@ export default function PartyPage() {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

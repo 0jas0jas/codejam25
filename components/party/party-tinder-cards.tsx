@@ -6,6 +6,7 @@ import { moviesToCardData } from '@/lib/elo_rating/movieToCardData';
 import { subscribeToParty, unsubscribeFromParty } from '@/lib/party/realtime';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Lottie from 'lottie-react';
 
 interface PartyTinderCardsProps {
   partySlug: string;
@@ -26,10 +27,16 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
   const [titleToDirectors, setTitleToDirectors] = useState<Record<string, string[]>>({});
   const [titleToDescription, setTitleToDescription] = useState<Record<string, string>>({});
   const [titleToRating, setTitleToRating] = useState<Record<string, number | null>>({});
+  const [animationData, setAnimationData] = useState<any>(null);
 
   // Fetch movies
   useEffect(() => {
     fetchMovies();
+    // Load movie animation
+    fetch('/movie-animation.json')
+      .then((res) => res.json())
+      .then((data) => setAnimationData(data))
+      .catch((err) => console.error('Error loading animation:', err));
   }, [partySlug]);
 
   // Set up realtime for movie updates
@@ -241,9 +248,27 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-gray-800 border-gray-700">
         <CardContent className="p-8 text-center">
-          <p>Loading movies...</p>
+          {animationData ? (
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-32 h-32">
+                <Lottie
+                  animationData={animationData}
+                  loop={true}
+                  autoplay={true}
+                  className="w-full h-full"
+                />
+              </div>
+              <p className="text-white">Loading movies...</p>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-sky-500 rounded-full animate-pulse"></div>
+              <div className="w-4 h-4 bg-sky-500 rounded-full animate-pulse [animation-delay:0.2s]"></div>
+              <div className="w-4 h-4 bg-sky-500 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -251,8 +276,8 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
 
   if (error) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center text-red-600">
+      <Card className="bg-gray-800 border-gray-700">
+        <CardContent className="p-8 text-center text-red-400">
           <p>{error}</p>
         </CardContent>
       </Card>
@@ -261,8 +286,8 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
 
   if (movies.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-8 text-center">
+      <Card className="bg-gray-800 border-gray-700">
+        <CardContent className="p-8 text-center text-gray-300">
           <p>No movies available. The host needs to generate movies first.</p>
         </CardContent>
       </Card>
@@ -270,27 +295,94 @@ export function PartyTinderCards({ partySlug, onComplete }: PartyTinderCardsProp
   }
 
   const remainingCount = movies.length - swipedMovies.size;
+  const completedCount = swipedMovies.size;
+  const progressPercentage = movies.length > 0 ? (completedCount / movies.length) * 100 : 0;
 
   return (
-    <div>
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>
-            Swipe through movies ({remainingCount} remaining)
-          </CardTitle>
-        </CardHeader>
-      </Card>
+    <div className="relative min-h-[600px] bg-gray-900 rounded-lg p-4">
+      {/* Movie Animation Background - More Visible */}
+      {animationData && remainingCount > 0 && (
+        <div className="absolute inset-0 pointer-events-none z-0 rounded-lg overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 opacity-10">
+            <Lottie
+              animationData={animationData}
+              loop={true}
+              autoplay={true}
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+      )}
+      
+      {/* Dark gradient background */}
+      {remainingCount > 0 && (
+        <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-gray-800/50 via-gray-900/50 to-gray-800/50 rounded-lg"></div>
+      )}
+
+      {/* Progress Bar */}
+      {remainingCount > 0 && (
+        <Card className="mb-4 relative z-10 bg-gray-800 border-gray-700">
+          <CardHeader>
+            <div className="space-y-3">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <span>🎬</span>
+                <span>Swipe through movies</span>
+              </CardTitle>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-gray-300">
+                  <span>{completedCount} completed</span>
+                  <span>{remainingCount} remaining</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-sky-500 to-purple-500 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+      )}
 
       {remainingCount > 0 ? (
-        <TinderCards
-          cardsData={cardsData}
-          onSwipe={handleSwipe}
-        />
+        <div className="relative z-10">
+          <div className="flex flex-col items-center gap-4">
+            <TinderCards
+              cardsData={cardsData}
+              onSwipe={handleSwipe}
+            />
+            {/* Swipe instructions */}
+            <div className="mt-4 text-center text-sm text-gray-400">
+              <p className="mb-2">💡 Swipe right to like, left to pass</p>
+              <div className="flex items-center justify-center gap-4 text-xs">
+                <span className="flex items-center gap-1 text-red-400">
+                  <span>←</span> Pass
+                </span>
+                <span className="flex items-center gap-1 text-green-400">
+                  <span>→</span> Like
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
-        <Card>
+        <Card className="relative z-10 bg-gray-800 border-gray-700">
           <CardContent className="p-8 text-center">
-            <p className="text-lg font-semibold mb-2">All done! 🎉</p>
-            <p className="text-gray-600">
+            <div className="mb-4">
+              {animationData && (
+                <div className="w-32 h-32 mx-auto mb-4">
+                  <Lottie
+                    animationData={animationData}
+                    loop={true}
+                    autoplay={true}
+                    className="w-full h-full"
+                  />
+                </div>
+              )}
+            </div>
+            <p className="text-lg font-semibold mb-2 text-white">All done! 🎉</p>
+            <p className="text-gray-400">
               Waiting for other members to finish swiping...
             </p>
           </CardContent>

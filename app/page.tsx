@@ -21,17 +21,17 @@ export default function HomePage() {
   return (
     <div className="min-h-screen relative">
       {/* Main Content Area */}
-      <div className="container mx-auto px-16 py-16">
+      <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           {/* Left Section - Text and CTA */}
-          <div className="flex flex-col space-y-6">
+          <div className="flex flex-col space-y-6 items-center lg:items-start text-center lg:text-left pl-8 lg:pl-12">
             {/* Two-line Headline */}
             <div className="space-y-2">
               <h1 className="text-5xl lg:text-6xl font-bold">
                 <span className="text-white">Flago your</span>
                 <br />
-                <span className="text-white">Movies</span>
+                <span className="text-white">movies</span>
               </h1>
             </div>
 
@@ -39,9 +39,9 @@ export default function HomePage() {
             <p className="text-lg text-white/90 max-w-lg leading-relaxed">
             Pick the perfect movie in seconds.
             <br />
-            Set your preferences and let our AI handle the rest - solo or with friends.
+            Set your preferences with your friends and let our AI handle the rest.
             <br />
-            With friends? Use Create a Party.Watching alone? Tap Get Started. (top-right).
+            Use Create a Party to get started.
             </p>
 
             {/* Call-to-Action Button */}
