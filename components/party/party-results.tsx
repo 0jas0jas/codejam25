@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Lottie from 'lottie-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -22,10 +24,19 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
   const [rankings, setRankings] = useState<MovieWithPoster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confettiData, setConfettiData] = useState<any>(null);
 
   useEffect(() => {
     fetchResults();
   }, [partySlug]);
+
+  // Load confetti animation
+  useEffect(() => {
+    fetch('/confetti.json')
+      .then((res) => res.json())
+      .then((data) => setConfettiData(data))
+      .catch((err) => console.error('Error loading confetti animation:', err));
+  }, []);
 
   const fetchResults = async () => {
     try {
@@ -119,10 +130,23 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">We think you should watch...</CardTitle>
-      </CardHeader>
+    <div className="relative">
+      {/* Confetti Animation Overlay */}
+      {confettiData && !loading && !error && rankings.length > 0 && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          <Lottie
+            animationData={confettiData}
+            loop={false}
+            autoplay={true}
+            className="w-full h-full"
+          />
+        </div>
+      )}
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">We think you should watch...</CardTitle>
+        </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {rankings.map((movie, index) => {
@@ -215,8 +239,42 @@ export function PartyResults({ partySlug }: PartyResultsProps) {
             );
           })}
         </div>
+        
+        {/* Back to Home Button */}
+        <div className="mt-8 pt-6 border-t border-white/20">
+          <Link
+            href="/"
+            className="
+              inline-flex items-center justify-center gap-2
+              w-full sm:w-auto
+              px-8 py-4 text-lg font-semibold
+              bg-sky-400 hover:bg-sky-500
+              text-white rounded-lg
+              shadow-lg shadow-sky-400/30
+              transition-all transform hover:scale-105
+              focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2
+              cursor-pointer
+            "
+          >
+            Back to Home
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" 
+              />
+            </svg>
+          </Link>
+        </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
 

@@ -8,7 +8,7 @@ export default function ConditionalNavbar() {
   
   // Only show navbar on home page (exact match with "/")
   // Hide it on all other pages including party routes
-  if (pathname === '/') {
+  if (pathname === '/home' || pathname === '/about' || pathname === '/contact_us' || pathname === '/') {
     return <FlagoNavbar />;
   }
   
